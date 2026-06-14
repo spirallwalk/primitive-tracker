@@ -16,10 +16,10 @@
 body {
   background-color: #0d0905;
   background-image:
-    linear-gradient(rgba(8, 4, 1, 0.72), rgba(8, 4, 1, 0.62) 40%, rgba(8, 4, 1, 0.72)),
-    url('/ui/de27f0ea126c4005314c4cec9db84cd6.webp');
+    linear-gradient(rgba(5, 2, 0, 0.55), rgba(5, 2, 0, 0.45) 40%, rgba(5, 2, 0, 0.60)),
+    url('/UI/de27f0ea126c4005314c4cec9db84cd6.webp');
   background-size: cover;
-  background-position: center;
+  background-position: center top;
   background-attachment: fixed;
   background-repeat: no-repeat;
   color: #e8d5b0;
@@ -27,9 +27,21 @@ body {
   font-family: var(--font-geist-sans, Arial, Helvetica, sans-serif);
 }
 
-/* iOS Safari doesn't support background-attachment: fixed */
+/* iOS Safari doesn't support background-attachment: fixed — use pseudo-element instead */
 @supports (-webkit-touch-callout: none) {
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(5, 2, 0, 0.55), rgba(5, 2, 0, 0.45) 40%, rgba(5, 2, 0, 0.60)),
+      url('/UI/de27f0ea126c4005314c4cec9db84cd6.webp');
+    background-size: cover;
+    background-position: center top;
+    z-index: -1;
+  }
   body {
+    background-image: none;
     background-attachment: scroll;
   }
 }
@@ -46,7 +58,7 @@ body {
 }
 
 .stone-card {
-  background: rgba(12, 7, 2, 0.80);
+  background: rgba(12, 7, 2, 0.72);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   box-shadow:
