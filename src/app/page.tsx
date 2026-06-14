@@ -1,0 +1,113 @@
+import { cookies } from 'next/headers'
+import Link from 'next/link'
+import { HABITS, LEVEL_GROUPS } from '@/lib/habits'
+import { createServiceClient } from '@/lib/supabase'
+import { HabitsGrid } from './components/habits-grid'
+import { SetupForm } from './components/setup-form'
+
+export default async function Page() {
+  const cookieStore = await cookies()
+  const username = cookieStore.get('username')?.value
+  const userId = cookieStore.get('user_id')?.value
+
+  if (!username || !userId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="w-full max-w-sm">
+          <p className="text-[10px] font-mono tracking-[0.22em] text-torch-dim uppercase mb-4">
+            Primitive Tracker
+          </p>
+          <h1 className="text-3xl font-bold text-bone mb-2 tracking-tight leading-tight">
+            원시의 피라미드로<br />돌아가라
+          </h1>
+          <p className="text-ash mb-8 text-sm">
+            매일 가장 인간적인 습관을 기록한다
+          </p>
+          <SetupForm />
+        </div>
+      </div>
+    )
+  }
+
+  const supabase = createServiceClient()
+  const today = new Date().toISOString().split('T')[0]
+  const { data } = await supabase
+    .from('habit_logs')
+    .select('habit_id')
+    .eq('user_id', userId)
+    .eq('logged_at', today)
+
+  const todayLogs = data?.map((l) => l.habit_id) ?? []
+  const score = todayLogs.length
+  const total = HABITS.length
+  const pct = Math.round((score / total) * 100)
+
+  const dateStr = new Date().toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'short',
+  })
+
+  return (
+    <div className="min-h-screen text-bone">
+      <div className="max-w-[760px] mx-auto px-4 pt-8 pb-16">
+
+        {/* Header */}
+        <header className="flex items-start justify-between mb-8">
+          <div>
+            <p className="text-[9px] font-mono tracking-[0.22em] text-torch-dim uppercase mb-1">
+              Primitive Tracker
+            </p>
+            <p className="text-ash text-xs">{dateStr}</p>
+          </div>
+          <div className="flex items-center gap-5">
+            <Link
+              href="/leaderboard"
+              className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
+            >
+              순위표 →
+            </Link>
+            <span className="text-xs text-[rgba(139,115,85,0.6)] font-mono">{username}</span>
+          </div>
+        </header>
+
+        {/* Score */}
+        <div className="mb-8">
+          <div className="flex items-baseline gap-2 mb-2">
+            <span className="text-4xl font-bold tabular-nums text-bone">{score}</span>
+            <span className="text-ash text-lg">/ {total}</span>
+            <span className="text-ash text-xs ml-auto font-mono">{pct}%</span>
+          </div>
+          <div className="h-px bg-[rgba(90,52,14,0.3)] rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{
+                width: `${pct}%`,
+                background: 'linear-gradient(90deg, #92400e 0%, #d97706 60%, #f97316 100%)',
+                boxShadow: '0 0 8px rgba(251,146,60,0.5)',
+              }}
+            />
+          </div>
+          {score === total && (
+            <p className="text-torch text-xs mt-2 font-mono tracking-widest">
+              ◆ PERFECT DAY
+            </p>
+          )}
+        </div>
+
+        {/* Section divider */}
+        <div className="flex items-center gap-3 mb-5">
+          <div className="h-px flex-1 bg-[rgba(90,52,14,0.25)]" />
+          <p className="text-[9px] font-mono tracking-[0.22em] text-[rgba(139,115,85,0.5)] uppercase">
+            원시 욕구 피라미드
+          </p>
+          <div className="h-px flex-1 bg-[rgba(90,52,14,0.25)]" />
+        </div>
+
+        {/* Pyramid */}
+        <HabitsGrid levelGroups={LEVEL_GROUPS} initialLogs={todayLogs} />
+      </div>
+    </div>
+  )
+}
