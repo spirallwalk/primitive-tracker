@@ -16,8 +16,7 @@
 body {
   background-color: #0d0905;
   background-image:
-    /* dark semi-transparent overlay */
-    linear-gradient(rgba(8, 4, 1, 0.78), rgba(8, 4, 1, 0.78)),
+    linear-gradient(rgba(8, 4, 1, 0.72), rgba(8, 4, 1, 0.62) 40%, rgba(8, 4, 1, 0.72)),
     url('/ui/de27f0ea126c4005314c4cec9db84cd6.webp');
   background-size: cover;
   background-position: center;

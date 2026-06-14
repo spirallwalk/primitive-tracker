@@ -4,6 +4,7 @@ import { HABITS, LEVEL_GROUPS } from '@/lib/habits'
 import { createServiceClient } from '@/lib/supabase'
 import { HabitsGrid } from './components/habits-grid'
 import { SetupForm } from './components/setup-form'
+import { resetUser } from './actions'
 
 export default async function Page() {
   const cookieStore = await cookies()
@@ -68,7 +69,16 @@ export default async function Page() {
             >
               순위표 →
             </Link>
-            <span className="text-xs text-[rgba(139,115,85,0.6)] font-mono">{username}</span>
+            <form action={resetUser}>
+              <button
+                type="submit"
+                title="닉네임 변경"
+                className="text-xs text-[rgba(139,115,85,0.6)] font-mono hover:text-ash transition-colors group flex items-center gap-1"
+              >
+                {username}
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">✎</span>
+              </button>
+            </form>
           </div>
         </header>
 

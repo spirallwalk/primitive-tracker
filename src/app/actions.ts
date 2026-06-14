@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { createServiceClient } from '@/lib/supabase'
 
 export type SetUsernameState = { error?: string } | null
@@ -30,6 +31,13 @@ export async function setUsername(
 
   revalidatePath('/')
   return null
+}
+
+export async function resetUser(): Promise<void> {
+  const cookieStore = await cookies()
+  cookieStore.delete('username')
+  cookieStore.delete('user_id')
+  redirect('/')
 }
 
 export async function logHabit(habitId: string): Promise<void> {
