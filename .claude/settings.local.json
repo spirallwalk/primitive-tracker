@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Skill(run)",
-      "PowerShell(npm run *)"
+      "PowerShell(npm run *)",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/next/package.json'\\).version\\)\")",
+      "Bash(xargs grep -l -i \"opengraph\\\\|metadata\\\\|og:\")"
     ]
   }
 }
