@@ -4,12 +4,13 @@ import { useOptimistic, useTransition } from 'react'
 import { logHabit } from '../actions'
 import type { Habit, LevelGroup } from '@/lib/habits'
 
-const WIDTHS: Record<number, number> = {
-  0: 680,
-  1: 560,
-  2: 440,
-  3: 320,
-  4: 200,
+// Responsive width classes: mobile uses compressed taper, desktop uses original proportions
+const WIDTHS_CLASSES: Record<number, string> = {
+  0: 'w-full',
+  1: 'w-[90%] sm:w-[82%]',
+  2: 'w-[80%] sm:w-[65%]',
+  3: 'w-[70%] sm:w-[47%]',
+  4: 'w-[60%] sm:w-[29%]',
 }
 
 const LEVEL_CONFIG: Record<number, {
@@ -51,8 +52,7 @@ export function HabitsGrid({
   const pyramid = [...levelGroups].reverse()
 
   return (
-    /* 680px = base width, mx-auto centers the whole pyramid */
-    <div className="mx-auto overflow-x-hidden" style={{ width: `${WIDTHS[0]}px` }}>
+    <div className="w-full max-w-[680px] mx-auto">
       <div className="relative">
 
         {/* ── Pyramid silhouette ── */}
@@ -87,9 +87,9 @@ export function HabitsGrid({
             return (
               <div
                 key={group.level}
-                style={{ width: `${WIDTHS[group.level]}px` }}
                 className={[
-                  'stone-card rounded-2xl p-4',
+                  WIDTHS_CLASSES[group.level],
+                  'stone-card rounded-2xl p-3 sm:p-4',
                   'border border-[rgba(90,52,14,0.35)] border-t-2',
                   cfg.topBorder,
                 ].join(' ')}
@@ -111,7 +111,7 @@ export function HabitsGrid({
                   </span>
                 </div>
 
-                <div className={`grid ${cfg.grid} gap-2`}>
+                <div className={`grid ${cfg.grid} gap-1.5 sm:gap-2`}>
                   {group.habits.map((habit: Habit) => {
                     const isLogged = optimisticLogs.includes(habit.id)
                     return (
@@ -119,7 +119,7 @@ export function HabitsGrid({
                         key={habit.id}
                         onClick={() => toggle(habit.id)}
                         className={[
-                          'flex flex-col items-center justify-center gap-1 rounded-xl min-h-[96px] px-2 py-3',
+                          'flex flex-col items-center justify-center gap-1 rounded-xl min-h-[80px] sm:min-h-[96px] px-1.5 sm:px-2 py-2.5 sm:py-3',
                           'transition-all duration-150 active:scale-95 select-none cursor-pointer',
                           isLogged
                             ? `${habit.bg} text-white torch-glow`

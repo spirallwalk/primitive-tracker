@@ -11,9 +11,9 @@ export async function setUsername(
   formData: FormData
 ): Promise<SetUsernameState> {
   const name = (formData.get('name') as string ?? '').trim()
-  if (name.length < 2) return { error: 'Name must be at least 2 characters' }
-  if (name.length > 30) return { error: 'Name must be under 30 characters' }
-  if (!/^[a-zA-Z0-9_\- ]+$/.test(name)) return { error: 'Only letters, numbers, spaces, hyphens, and underscores' }
+  if (name.length < 2) return { error: '닉네임은 2자 이상이어야 합니다' }
+  if (name.length > 30) return { error: '닉네임은 30자 이하여야 합니다' }
+  if (!/^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ_\- ]+$/.test(name)) return { error: '글자, 숫자, 한글, 공백, 하이픈, 밑줄만 사용 가능합니다' }
 
   const supabase = createServiceClient()
   const { data: user, error } = await supabase

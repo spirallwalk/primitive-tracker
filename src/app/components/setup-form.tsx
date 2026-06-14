@@ -12,11 +12,12 @@ export function SetupForm() {
       <input
         type="text"
         name="name"
-        placeholder="your name"
+        placeholder="닉네임 (한글 가능)"
         maxLength={30}
         required
         autoFocus
-        className="bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors"
+        autoComplete="off"
+        className="bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors text-base"
       />
       {state?.error && (
         <p className="text-red-400 text-sm">{state.error}</p>
@@ -24,9 +25,9 @@ export function SetupForm() {
       <button
         type="submit"
         disabled={pending}
-        className="bg-white text-black rounded-xl px-4 py-3 font-semibold hover:bg-zinc-200 transition-colors disabled:opacity-50"
+        className="bg-white text-black rounded-xl px-4 py-3 font-semibold hover:bg-zinc-200 transition-colors disabled:opacity-50 text-base"
       >
-        {pending ? 'setting up…' : 'start tracking →'}
+        {pending ? '설정 중…' : '시작하기 →'}
       </button>
     </form>
   )
