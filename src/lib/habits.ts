@@ -49,3 +49,18 @@ export const LEVEL_GROUPS: LevelGroup[] = [
   { level: 3, label: '레벨 3  연결',   habits: ALL_HABITS.filter(h => h.level === 3) },
   { level: 4, label: '레벨 4  초월',   habits: ALL_HABITS.filter(h => h.level === 4) },
 ]
+
+export const LEVEL_SCORE: Record<number, number> = { 0: 1, 1: 2, 2: 3, 3: 4, 4: 5 }
+
+export function computeDayScore(loggedHabitIds: string[]): number {
+  const loggedSet = new Set(loggedHabitIds)
+  let score = 0
+  for (const habit of ALL_HABITS) {
+    if (loggedSet.has(habit.id)) score += LEVEL_SCORE[habit.level]
+  }
+  if (loggedSet.size === ALL_HABITS.length) score += 10
+  return score
+}
+
+// 3×1 + 3×2 + 3×3 + 4×4 + 2×5 + 10 보너스 = 54
+export const MAX_DAY_SCORE = ALL_HABITS.reduce((s, h) => s + LEVEL_SCORE[h.level], 0) + 10

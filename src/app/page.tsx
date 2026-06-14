@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { HABITS, LEVEL_GROUPS } from '@/lib/habits'
+import { HABITS, LEVEL_GROUPS, computeDayScore, MAX_DAY_SCORE } from '@/lib/habits'
 import { createServiceClient } from '@/lib/supabase'
 import { HabitsGrid } from './components/habits-grid'
 import { SetupForm } from './components/setup-form'
@@ -39,9 +39,10 @@ export default async function Page() {
     .eq('logged_at', today)
 
   const todayLogs = data?.map((l) => l.habit_id) ?? []
-  const score = todayLogs.length
+  const count = todayLogs.length
+  const score = computeDayScore(todayLogs)
   const total = HABITS.length
-  const pct = Math.round((score / total) * 100)
+  const pct = Math.round((score / MAX_DAY_SCORE) * 100)
 
   const dateStr = new Date().toLocaleDateString('ko-KR', {
     year: 'numeric',
@@ -85,9 +86,9 @@ export default async function Page() {
         {/* Score */}
         <div className="mb-8">
           <div className="flex items-baseline gap-2 mb-2">
-            <span className="text-4xl font-bold tabular-nums text-bone">{score}</span>
-            <span className="text-ash text-lg">/ {total}</span>
-            <span className="text-ash text-xs ml-auto font-mono">{pct}%</span>
+            <span className="text-4xl font-bold tabular-nums text-bone">{score}점</span>
+            <span className="text-ash text-lg">/ {MAX_DAY_SCORE}</span>
+            <span className="text-ash text-xs ml-auto font-mono">{count}/{total}개</span>
           </div>
           <div className="h-px bg-[rgba(90,52,14,0.3)] rounded-full overflow-hidden">
             <div
@@ -99,7 +100,7 @@ export default async function Page() {
               }}
             />
           </div>
-          {score === total && (
+          {count === total && (
             <p className="text-torch text-xs mt-2 font-mono tracking-widest">
               ◆ PERFECT DAY
             </p>
