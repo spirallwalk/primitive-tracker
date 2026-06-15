@@ -40,6 +40,31 @@ export async function resetUser(): Promise<void> {
   redirect('/')
 }
 
+export type SubmitFeedbackState = { error?: string; success?: boolean } | null
+
+export async function submitFeedback(
+  _prev: SubmitFeedbackState,
+  formData: FormData
+): Promise<SubmitFeedbackState> {
+  const cookieStore = await cookies()
+  const username = cookieStore.get('username')?.value
+  if (!username) return { error: '로그인이 필요합니다' }
+
+  const message = (formData.get('message') as string ?? '').trim()
+  if (message.length < 5) return { error: '5자 이상 입력해 주세요' }
+  if (message.length > 500) return { error: '500자 이하로 작성해 주세요' }
+
+  const supabase = createServiceClient()
+  const { error } = await supabase
+    .from('feedback')
+    .insert({ user_name: username, message })
+
+  if (error) return { error: '저장 실패 — 다시 시도해 주세요' }
+
+  revalidatePath('/feedback')
+  return { success: true }
+}
+
 export async function logHabit(habitId: string): Promise<void> {
   const cookieStore = await cookies()
   const userId = cookieStore.get('user_id')?.value

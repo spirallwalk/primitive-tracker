@@ -27,8 +27,7 @@ const ALL_HABITS: Habit[] = [
   // 레벨 2: 성장
   { id: 'discomfort', emoji: '🧊',   name: '의도된 불편함', hint: '냉수샤워\n사우나\n금식',             bg: 'bg-cyan-500',    level: 2 },
   { id: 'strength',   emoji: '🏋️',  name: '근력운동',      hint: '웨이트\n푸쉬업\n스쿼트',            bg: 'bg-orange-500',  level: 2 },
-  { id: 'cardio',     emoji: '🔥',   name: '고강도운동',    hint: '크로스핏\nF45\n인터벌',              bg: 'bg-red-500',     level: 2 },
-  { id: 'zone5',      emoji: '⚡',   name: '존5',           hint: '전력 질주\n최대심박 90%+\n타바타',   bg: 'bg-amber-500',   level: 2 },
+  { id: 'cardio',     emoji: '🔥',   name: '고강도운동',    hint: '폭발적인 존5\n전력질주·스포츠\n타바타 4분·계단 뛰기', bg: 'bg-red-500', level: 2 },
 
   // 레벨 3: 연결
   { id: 'tribe',      emoji: '👥',   name: '부족',          hint: '친구 만나기\n운동 모임',             bg: 'bg-violet-500',  level: 3 },
@@ -63,5 +62,5 @@ export function computeDayScore(loggedHabitIds: string[]): number {
   return score
 }
 
-// 3×1 + 3×2 + 4×3 + 4×4 + 2×5 + 10 보너스 = 57
+// 3×1 + 3×2 + 3×3 + 4×4 + 2×5 + 10 보너스 = 54
 export const MAX_DAY_SCORE = ALL_HABITS.reduce((s, h) => s + LEVEL_SCORE[h.level], 0) + 10
