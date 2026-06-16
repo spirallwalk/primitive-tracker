@@ -32,14 +32,26 @@ export default async function Page() {
 
   const supabase = createServiceClient()
   const today = new Date().toISOString().split('T')[0]
-  const { data } = await supabase
-    .from('habit_logs')
-    .select('habit_id')
-    .eq('user_id', userId)
-    .eq('logged_at', today)
 
-  const todayLogs = data?.map((l) => l.habit_id) ?? []
+  const [{ data: todayData }, { data: allDateLogs }] = await Promise.all([
+    supabase.from('habit_logs').select('habit_id').eq('user_id', userId).eq('logged_at', today),
+    supabase.from('habit_logs').select('logged_at').eq('user_id', userId),
+  ])
+
+  const todayLogs = todayData?.map((l) => l.habit_id) ?? []
   const count = todayLogs.length
+
+  // Streak: consecutive days ending today (or yesterday if today has no logs)
+  const loggedDateSet = new Set(allDateLogs?.map(l => l.logged_at) ?? [])
+  let streak = 0
+  const streakCur = new Date()
+  if (count === 0) streakCur.setDate(streakCur.getDate() - 1)
+  for (let i = 0; i < 365; i++) {
+    const d = streakCur.toISOString().split('T')[0]
+    if (!loggedDateSet.has(d)) break
+    streak++
+    streakCur.setDate(streakCur.getDate() - 1)
+  }
   const score = computeDayScore(todayLogs)
   const total = HABITS.length
   const pct = Math.round((score / MAX_DAY_SCORE) * 100)
@@ -64,6 +76,12 @@ export default async function Page() {
             <p className="text-ash text-xs">{dateStr}</p>
           </div>
           <div className="flex items-center gap-5">
+            <Link
+              href="/calendar"
+              className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
+            >
+              캘린더 →
+            </Link>
             <Link
               href="/leaderboard"
               className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
@@ -106,10 +124,15 @@ export default async function Page() {
               }}
             />
           </div>
-          {count === total && (
-            <p className="text-torch text-xs mt-2 font-mono tracking-widest">
-              ◆ PERFECT DAY
-            </p>
+          {(streak >= 1 || count === total) && (
+            <div className="flex items-center gap-4 mt-2">
+              {streak >= 1 && (
+                <p className="text-torch text-xs font-mono">🔥 {streak}일째</p>
+              )}
+              {count === total && (
+                <p className="text-torch text-xs font-mono tracking-widest">◆ PERFECT DAY</p>
+              )}
+            </div>
           )}
         </div>
 
