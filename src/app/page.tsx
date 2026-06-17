@@ -124,16 +124,14 @@ export default async function Page() {
               }}
             />
           </div>
-          {(streak >= 1 || count === total) && (
-            <div className="flex items-center gap-4 mt-2">
-              {streak >= 1 && (
-                <p className="text-torch text-xs font-mono">🔥 {streak}일째</p>
-              )}
-              {count === total && (
-                <p className="text-torch text-xs font-mono tracking-widest">◆ PERFECT DAY</p>
-              )}
-            </div>
-          )}
+          <div className="flex items-center gap-4 mt-2">
+            <p className={['text-xs font-mono', streak > 0 ? 'text-torch' : 'text-ash/50'].join(' ')}>
+              🔥 {streak}일째
+            </p>
+            {count === total && (
+              <p className="text-torch text-xs font-mono tracking-widest">◆ PERFECT DAY</p>
+            )}
+          </div>
         </div>
 
         {/* Section divider */}

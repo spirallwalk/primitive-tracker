@@ -1,6 +1,6 @@
 'use client'
 
-import { useOptimistic, useTransition } from 'react'
+import { useOptimistic, useTransition, useState } from 'react'
 import { logHabit } from '../actions'
 import type { Habit, LevelGroup } from '@/lib/habits'
 
@@ -41,8 +41,11 @@ export function HabitsGrid({
         : [...state, habitId]
   )
   const [, startTransition] = useTransition()
+  const [pressedId, setPressedId] = useState<string | null>(null)
 
   function toggle(habitId: string) {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(12)
+    setPressedId(habitId)
     startTransition(async () => {
       updateOptimistic(habitId)
       await logHabit(habitId)
@@ -118,12 +121,14 @@ export function HabitsGrid({
                       <button
                         key={habit.id}
                         onClick={() => toggle(habit.id)}
+                        onAnimationEnd={() => setPressedId(null)}
                         className={[
                           'flex flex-col items-center justify-center gap-1 rounded-xl min-h-[80px] sm:min-h-[96px] px-1.5 sm:px-2 py-2.5 sm:py-3',
-                          'transition-all duration-150 active:scale-95 select-none cursor-pointer',
+                          'transition-colors duration-150 select-none cursor-pointer',
                           isLogged
                             ? `${habit.bg} text-white torch-glow`
                             : 'bg-[rgba(10,5,1,0.55)] text-ash border border-[rgba(138,96,40,0.3)] hover:border-[rgba(196,132,58,0.5)] hover:text-bone',
+                          pressedId === habit.id ? 'btn-pressed' : '',
                         ].join(' ')}
                       >
                         <span className="text-xl leading-none">{habit.emoji}</span>

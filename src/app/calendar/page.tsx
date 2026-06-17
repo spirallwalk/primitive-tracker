@@ -103,67 +103,70 @@ export default async function CalendarPage({
           </Link>
         </div>
 
-        {/* Day-of-week headers */}
-        <div className="grid grid-cols-7 gap-1 mb-1">
-          {DAY_LABELS.map(d => (
-            <div key={d} className="text-center text-[10px] font-mono text-ash/60 py-1">
-              {d}
-            </div>
-          ))}
-        </div>
-
-        {/* Calendar grid */}
-        <div className="grid grid-cols-7 gap-1">
-          {cells.map((day, i) => {
-            if (day === null) return <div key={i} />
-
-            const dateStr = `${year}-${monthStr}-${String(day).padStart(2, '0')}`
-            const habits = dayHabits[dateStr] ?? []
-            const hasLogs = habits.length > 0
-            const score = hasLogs ? computeDayScore(habits) : 0
-            const isToday = dateStr === today
-            const levelsDone = new Set(
-              habits
-                .map(id => habitLevelMap.get(id))
-                .filter((l): l is number => l !== undefined)
-            )
-
-            return (
-              <div
-                key={dateStr}
-                className={[
-                  'relative rounded-lg p-1.5 min-h-[60px] sm:min-h-[72px]',
-                  hasLogs ? 'stone-card border border-[rgba(196,132,58,0.2)]' : '',
-                  isToday ? 'ring-1 ring-torch' : '',
-                ].join(' ')}
-              >
-                <div className={[
-                  'text-[11px] font-mono leading-none',
-                  isToday ? 'text-torch font-bold' : hasLogs ? 'text-bone' : 'text-ash/40',
-                ].join(' ')}>
-                  {day}
-                </div>
-                {hasLogs && (
-                  <>
-                    <div className="flex flex-wrap gap-[3px] mt-1.5">
-                      {[0, 1, 2, 3, 4].map(level => (
-                        <div
-                          key={level}
-                          className={[
-                            'w-1.5 h-1.5 rounded-full',
-                            levelsDone.has(level) ? LEVEL_DOT_COLORS[level] : 'opacity-0',
-                          ].join(' ')}
-                        />
-                      ))}
-                    </div>
-                    <div className="absolute bottom-1 right-1.5 text-[9px] font-mono text-torch-dim tabular-nums">
-                      {score}
-                    </div>
-                  </>
-                )}
+        {/* Day-of-week headers + Calendar grid wrapped in translucent card */}
+        <div className="calendar-card px-3 py-4">
+          <div className="grid grid-cols-7 gap-1 mb-1">
+            {DAY_LABELS.map(d => (
+              <div key={d} className="text-center text-[10px] font-mono text-ash/70 py-1">
+                {d}
               </div>
-            )
-          })}
+            ))}
+          </div>
+
+          <div className="grid grid-cols-7 gap-1">
+            {cells.map((day, i) => {
+              if (day === null) return <div key={i} />
+
+              const dateStr = `${year}-${monthStr}-${String(day).padStart(2, '0')}`
+              const habits = dayHabits[dateStr] ?? []
+              const hasLogs = habits.length > 0
+              const score = hasLogs ? computeDayScore(habits) : 0
+              const isToday = dateStr === today
+              const levelsDone = new Set(
+                habits
+                  .map(id => habitLevelMap.get(id))
+                  .filter((l): l is number => l !== undefined)
+              )
+
+              return (
+                <div
+                  key={dateStr}
+                  className={[
+                    'relative rounded-lg p-1.5 min-h-[60px] sm:min-h-[72px]',
+                    hasLogs
+                      ? 'bg-[rgba(255,248,235,0.14)] border border-[rgba(196,132,58,0.35)]'
+                      : 'bg-[rgba(255,248,235,0.05)]',
+                    isToday ? 'ring-1 ring-torch' : '',
+                  ].join(' ')}
+                >
+                  <div className={[
+                    'text-[11px] font-mono leading-none',
+                    isToday ? 'text-torch font-bold' : hasLogs ? 'text-bone' : 'text-ash/50',
+                  ].join(' ')}>
+                    {day}
+                  </div>
+                  {hasLogs && (
+                    <>
+                      <div className="flex flex-wrap gap-[3px] mt-1.5">
+                        {[0, 1, 2, 3, 4].map(level => (
+                          <div
+                            key={level}
+                            className={[
+                              'w-1.5 h-1.5 rounded-full',
+                              levelsDone.has(level) ? LEVEL_DOT_COLORS[level] : 'opacity-0',
+                            ].join(' ')}
+                          />
+                        ))}
+                      </div>
+                      <div className="absolute bottom-1 right-1.5 text-[9px] font-mono text-torch tabular-nums">
+                        {score}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </div>
 
         {/* Monthly summary */}
