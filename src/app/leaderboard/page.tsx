@@ -1,7 +1,11 @@
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createServiceClient } from '@/lib/supabase'
-import { computeDayScore, MAX_DAY_SCORE, HABITS } from '@/lib/habits'
+import { computeDayScore, MAX_DAY_SCORE } from '@/lib/habits'
+
+function getToday(): string {
+  return new Date().toISOString().split('T')[0]
+}
 
 function getWeekStart(offsetWeeks = 0): string {
   const now = new Date()
@@ -12,9 +16,14 @@ function getWeekStart(offsetWeeks = 0): string {
   return monday.toISOString().split('T')[0]
 }
 
+function getMonthStart(): string {
+  const now = new Date()
+  return new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
+}
+
 type LogRow = { user_id: string; habit_id: string; logged_at: string; users: unknown }
 
-function computeWeeklyScores(logs: LogRow[]) {
+function computeScores(logs: LogRow[]) {
   const userNames: Record<string, string> = {}
   const userDayHabits: Record<string, Record<string, string[]>> = {}
 
@@ -44,15 +53,24 @@ function formatWeekRange(weekStart: string): string {
   return `${fmt(start)} ~ ${fmt(end)}`
 }
 
-export default async function LeaderboardPage() {
+export default async function LeaderboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const { tab = 'today' } = await searchParams
+  const activeTab = typeof tab === 'string' ? tab : 'today'
+
   const cookieStore = await cookies()
   const currentUsername = cookieStore.get('username')?.value
 
   const supabase = createServiceClient()
+  const today = getToday()
   const thisWeekStart = getWeekStart(0)
   const lastWeekStart = getWeekStart(1)
+  const monthStart = getMonthStart()
 
-  // Hall of Fame: check if last week's winner is recorded, save if not
+  // 지난 주 우승자 명예의 전당 저장
   const { data: existingFame } = await supabase
     .from('hall_of_fame')
     .select('week_start')
@@ -67,7 +85,7 @@ export default async function LeaderboardPage() {
       .lt('logged_at', thisWeekStart)
 
     if (lastWeekLogs && lastWeekLogs.length > 0) {
-      const ranked = computeWeeklyScores(lastWeekLogs as LogRow[])
+      const ranked = computeScores(lastWeekLogs as LogRow[])
       const winner = ranked[0]
       if (winner) {
         await supabase.from('hall_of_fame').upsert(
@@ -78,27 +96,54 @@ export default async function LeaderboardPage() {
     }
   }
 
-  // Fetch Hall of Fame entries
   const { data: hallOfFame } = await supabase
     .from('hall_of_fame')
     .select('week_start, user_name, score')
     .order('week_start', { ascending: false })
     .limit(10)
 
-  // Current week leaderboard
-  const { data: logs } = await supabase
-    .from('habit_logs')
-    .select('user_id, habit_id, logged_at, users(name)')
-    .gte('logged_at', thisWeekStart)
+  // 탭별 데이터 fetch
+  let logs: LogRow[] = []
+  let periodLabel = ''
+  let emptyMessage = ''
 
-  const leaderboard = computeWeeklyScores((logs ?? []) as LogRow[])
-
-  const weekStartDate = new Date(thisWeekStart)
-  const today = new Date()
+  const now = new Date()
   const fmt = (d: Date) => d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
-  const weekStr = `${fmt(weekStartDate)} – ${fmt(today)}`
 
+  if (activeTab === 'today') {
+    const { data } = await supabase
+      .from('habit_logs')
+      .select('user_id, habit_id, logged_at, users(name)')
+      .eq('logged_at', today)
+    logs = (data ?? []) as LogRow[]
+    periodLabel = now.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })
+    emptyMessage = '오늘 아직 아무도 없어요 — 첫 번째가 되세요!'
+  } else if (activeTab === 'week') {
+    const { data } = await supabase
+      .from('habit_logs')
+      .select('user_id, habit_id, logged_at, users(name)')
+      .gte('logged_at', thisWeekStart)
+    logs = (data ?? []) as LogRow[]
+    periodLabel = `${fmt(new Date(thisWeekStart + 'T00:00:00'))} – ${fmt(now)}`
+    emptyMessage = '이번 주 아직 기록이 없어요.'
+  } else if (activeTab === 'month') {
+    const { data } = await supabase
+      .from('habit_logs')
+      .select('user_id, habit_id, logged_at, users(name)')
+      .gte('logged_at', monthStart)
+    logs = (data ?? []) as LogRow[]
+    periodLabel = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })
+    emptyMessage = '이번 달 아직 기록이 없어요.'
+  }
+
+  const leaderboard = computeScores(logs)
   const medals = ['🥇', '🥈', '🥉']
+
+  const tabs = [
+    { id: 'today', label: '오늘' },
+    { id: 'week', label: '이번 주' },
+    { id: 'month', label: '이번 달' },
+  ]
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -110,13 +155,32 @@ export default async function LeaderboardPage() {
           ← back
         </Link>
 
-        <div className="mt-6 mb-8">
+        <div className="mt-6 mb-6">
           <h1 className="text-2xl font-bold tracking-tight">leaderboard</h1>
-          <p className="text-zinc-600 text-sm mt-1">{weekStr}</p>
         </div>
 
+        {/* 탭 */}
+        <div className="flex gap-1 bg-zinc-900 rounded-xl p-1 mb-5">
+          {tabs.map((t) => (
+            <Link
+              key={t.id}
+              href={`/leaderboard?tab=${t.id}`}
+              className={[
+                'flex-1 text-center py-2 rounded-lg text-sm font-medium transition-colors',
+                activeTab === t.id
+                  ? 'bg-white text-black'
+                  : 'text-zinc-500 hover:text-zinc-200',
+              ].join(' ')}
+            >
+              {t.label}
+            </Link>
+          ))}
+        </div>
+
+        <p className="text-zinc-600 text-sm mb-4">{periodLabel}</p>
+
         {leaderboard.length === 0 ? (
-          <p className="text-zinc-700">no habits logged this week yet — be first!</p>
+          <p className="text-zinc-700">{emptyMessage}</p>
         ) : (
           <ol className="flex flex-col gap-2">
             {leaderboard.map((entry, i) => {
@@ -150,10 +214,12 @@ export default async function LeaderboardPage() {
         )}
 
         <p className="text-zinc-800 text-xs mt-6 text-center">
-          최대 {MAX_DAY_SCORE * 7}pt / 주 (하루 {HABITS.length}개 × 7일)
+          {activeTab === 'today' && `최대 ${MAX_DAY_SCORE}pt / 일`}
+          {activeTab === 'week' && `최대 ${MAX_DAY_SCORE * 7}pt / 주`}
+          {activeTab === 'month' && `최대 ${MAX_DAY_SCORE}pt × ${new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()}일`}
         </p>
 
-        {/* Hall of Fame */}
+        {/* 명예의 전당 */}
         {hallOfFame && hallOfFame.length > 0 && (
           <div className="mt-12">
             <div className="flex items-center gap-3 mb-4">
