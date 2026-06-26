@@ -89,6 +89,12 @@ export default async function Page() {
               순위표 →
             </Link>
             <Link
+              href="/community"
+              className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
+            >
+              커뮤니티 →
+            </Link>
+            <Link
               href="/feedback"
               className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
             >
