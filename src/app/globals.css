@@ -57,6 +57,13 @@ body {
   animation: torch-flicker 2.8s ease-in-out infinite;
 }
 
+/* bottom nav clearance on mobile */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+}
+
 .stone-card {
   background: rgba(12, 7, 2, 0.72);
   backdrop-filter: blur(4px);

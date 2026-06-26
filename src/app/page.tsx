@@ -76,30 +76,32 @@ export default async function Page() {
             <p className="text-ash text-xs">{dateStr}</p>
           </div>
           <div className="flex items-center gap-5">
-            <Link
-              href="/calendar"
-              className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
-            >
-              캘린더 →
-            </Link>
-            <Link
-              href="/leaderboard"
-              className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
-            >
-              순위표 →
-            </Link>
-            <Link
-              href="/community"
-              className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
-            >
-              커뮤니티 →
-            </Link>
-            <Link
-              href="/feedback"
-              className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
-            >
-              방명록 →
-            </Link>
+            <div className="hidden md:flex items-center gap-5">
+              <Link
+                href="/calendar"
+                className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
+              >
+                캘린더 →
+              </Link>
+              <Link
+                href="/leaderboard"
+                className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
+              >
+                순위표 →
+              </Link>
+              <Link
+                href="/community"
+                className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
+              >
+                커뮤니티 →
+              </Link>
+              <Link
+                href="/feedback"
+                className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
+              >
+                방명록 →
+              </Link>
+            </div>
             <form action={resetUser}>
               <button
                 type="submit"
