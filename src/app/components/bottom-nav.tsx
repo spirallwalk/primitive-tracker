@@ -16,10 +16,10 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-[rgba(196,132,58,0.15)] bg-[rgba(10,6,2,0.92)] backdrop-blur-md"
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-[rgba(196,132,58,0.15)] bg-[rgba(10,6,2,0.92)] backdrop-blur-md"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="flex items-center justify-around px-1 py-1.5">
+      <div className="max-w-lg mx-auto flex items-center justify-around px-1 py-1.5">
         {NAV_ITEMS.map((item) => {
           const active = pathname === item.href
           return (

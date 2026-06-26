@@ -75,44 +75,16 @@ export default async function Page() {
             </p>
             <p className="text-ash text-xs">{dateStr}</p>
           </div>
-          <div className="flex items-center gap-5">
-            <div className="hidden md:flex items-center gap-5">
-              <Link
-                href="/calendar"
-                className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
-              >
-                캘린더 →
-              </Link>
-              <Link
-                href="/leaderboard"
-                className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
-              >
-                순위표 →
-              </Link>
-              <Link
-                href="/community"
-                className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
-              >
-                커뮤니티 →
-              </Link>
-              <Link
-                href="/feedback"
-                className="text-xs text-ash hover:text-bone transition-colors font-mono tracking-wide"
-              >
-                방명록 →
-              </Link>
-            </div>
-            <form action={resetUser}>
-              <button
-                type="submit"
-                title="닉네임 변경"
-                className="text-xs text-[rgba(139,115,85,0.6)] font-mono hover:text-ash transition-colors group flex items-center gap-1"
-              >
-                {username}
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">✎</span>
-              </button>
-            </form>
-          </div>
+          <form action={resetUser}>
+            <button
+              type="submit"
+              title="닉네임 변경"
+              className="text-xs text-[rgba(139,115,85,0.6)] font-mono hover:text-ash transition-colors group flex items-center gap-1"
+            >
+              {username}
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">✎</span>
+            </button>
+          </form>
         </header>
 
         {/* Score */}
